@@ -1,0 +1,267 @@
+FORMAT: 1A
+HOST: http://private-47682-giriokt.apiary-mock.com/
+
+# Waresix API
+
+Dummy API for Waresix.
+
+## API Token [/api/v1/login/]
+
+### Create Token [POST]
+    
++ Request (application/x-www-form-urlencoded)
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "status": "success",
+                "data": {
+                    "authToken": "Bb_k_bSw412AUnzYHGX_rpLeJfh5ST0r5_ytifriLGz",
+                    "userId": "QEm9bppzrHp2SH2Ts"
+                }
+            }
+
+## Warehouse Reservations [/api/v1/reservations]
+
+### List Warehouses Reservations [GET]
+
++ Response 200 (application/json)
+
+        [
+            {
+                "warehouse_id": "WH001",
+                "start": "2019-01-05T08:40:51.620Z",
+                "end": "2019-12-05T08:40:51.620Z",
+                "width": 100,
+                "length": 100,
+                "notes": "Warehouse 001",
+                "status": "Active"
+            }
+        ]
+
+
+## Create Shipment [/api/v1/shipment/add/{warehouse_id}]
+
++ Parameters
+    + warehouse_id (string) -  "self" or "other"
+    
+### Create a New Shipment [POST]
+
+You may create your own shipment using this action.
+
++ Request (application/json)
+
+        {
+            "type": "In",
+            "items": [
+                {"name": "BOLA", "quantity": 100, "unit": "pc"},
+            ],
+            "date": "2019-10-15T08:40:51.620Z",
+            "notes": "",
+            "attachments": [],
+            "destination": {"latitude": "6.13421", "longitude": "7.12312", name: "Menara Pabrikan"},
+        }
+      
++ Response 201 (application/json)
+
+    + Body
+
+            {
+                "tracking_id": "TRK001",
+                "warehouse_id": "WH001",
+                "date": "2019-10-15T08:40:51.620Z",
+                "type": "In",
+                "items": [
+                    {"name": "BOLA", "quantity": 100, "unit": "pc"},
+                ],
+                "status": "in-progress",
+            }
+
+
+## Shipment Status [/api/v1/shipments/status/{possession}/{status}{?start,limit}]
+
++ Parameters
+    + possession (string) -  "self" or "other"
+    + status (string) -  "open", "in-progress", "cancelled", and "rejected"
+    + start (optional, number) - Starting number of rows to limit the result
+    + limit (optional, number) - Maximum number of rows to limit the result
+
+### List Shipment Status [GET]
+
++ Response 200 (application/json)
+
+        [
+            {
+                "tracking_id": "TRK001",
+                "status": "in-progress",
+            }
+        ]
+        
+
+## Shipment List [/api/v1/shipments/{possession}/{status}{?start,limit}]
+
++ Parameters
+    + possession (string) -  "self" or "other"
+    + status (string) -  "open", "in-progress", "cancelled", and "rejected"
+    + start (optional, number) - Starting number of rows to limit the result
+    + limit (optional, number) - Maximum number of rows to limit the result
+
+
+### List All Shipments [GET]
+
++ Response 200 (application/json)
+
+        [
+            {
+                "tracking_id": "TRK001",
+                "type": "In",
+                "items": [
+                    {"name": "BOLA", "quantity": 100, "unit": "pc"},
+                ],
+                "date": "2019-10-15T08:40:51.620Z",
+                "wid": "WH001",
+                "carriers": "carrier 1",
+                "status": "in-progress",
+                "notes": [],
+                "photo": "",
+                "owner": "",
+            }
+        ]
+
+
+## Shipment Detail [/api/v1/shipment/{tracking_id}]
+
++ Parameters
+    + tracking_id (string) - The unique string of numbers and letters that identify the shipment
+
+### View a Shipment Detail [GET]
+
++ Response 200 (application/json)
+
+        {
+            "tracking_id": "TRK001",
+            "type": "In",
+            "items": [
+                {"name": "BOLA", "quantity": 100, "unit": "pc"},
+            ],
+            "date": "2019-10-15T08:40:51.620Z",
+            "wid": "WH001",
+            "carriers": "carrier 1",
+            "status": "in-progress",
+            "notes": [],
+        }
+
+
+## Update Shipment Status [/api/v1/shipment/updatestatus/{tracking_id}]
+
++ Parameters
+    + tracking_id (required, string) - The unique string of numbers and letters that identify the shipment
+
+### Update a Shipment Status [POST]
++ Attributes
+    + status (required) - 'in-progress', 'prepared', 'rejected' or 'cancelled'
+
++ Request (application/json)
+
+        {
+            "status": "cancelled",
+        }
+
++ Response 200 (application/json)
+
+        {
+            "tracking_id": "TRK001",
+            "status": "cancelled",
+        }
+
+
+## Create SKU [/api/v1/inventory/add/sku]
+    
+### Create a New SKU [POST]
+
++ Attributes
+    + name (required) - String name or code of the SKU
+    + description (required) - String description of the SKU
+    + categories (required) - String name of the category
+    + type (required) - 'item' or 'bundle'
+    + unit_1 (required) - String name of the largest unit the item is called
+    + ratio_1 (required) - fill with 1
+    + barcode_1 (optional) - String barcode of the SKU
+    + unit_2 (optional) - The unit_2 following the largest unit of the SKU
+    + ratio_2 (optional) - The ratio between the previous unit compared to this unit 
+    + barcode_2 (optional) - String barcode of the unit_2
+    + width (required) - The given width of the SKU using the largest unit (in meters)
+    + length (required) - The given length of the SKU using the largest unit (in meters)
+    + height (required) - The given height of the SKU using the largest unit (in meters)
+    + weight (required) - The given weight of the SKU using the largest unit
+    + stackable (required) - 'true' or 'false'
+    + storage_method (required) - 'fefo' or 'none'
+    + expiry_reminder (optional) - count of days before the expiry date
+    + minimum_stock (optional) - buffer stock
+    + photo_url_1 (optional) - Url Image of the product
+      
++ Request (application/json)
+
+        {
+            "name": "Bola",
+            "description": "",
+            "categories": "",
+            "type": "item",
+            "unit_1": "Bola",
+            "ratio_1": 1,
+            "barcode_1": "",
+            "unit_2": "Bola",
+            "ratio_2": 1,
+            "barcode_2": "",
+            "width": 1,
+            "length": 1,
+            "height": 1,
+            "weight": 1,
+            "stackable": "true",
+            "storage_method": "fefo",
+            "expiry_reminder": 30,
+            "minimum_stock": 10,
+            "photo_url_1": ""
+        }
+        
++ Response 201 (application/json)
+
+        {
+            "id": "SKU001",
+            "name": "Bola",
+            "desc": "Bola",
+            "unit": "Bola",
+            "subunits": [],
+            "width": 1,
+            "length": 1,
+            "stackable": true,
+            "stackable": true,
+            "count": []
+        }
+
+
+## Fetch SKU [/api/v1/inventory/self/{sku_name}]
+
++ Parameters
+    + sku_name (string) - String name or code of the SKU
+
+### Fetch SKU [GET]
+
+Find SKU by name, and return details including current stock level.
+
++ Response 200 (application/json)
+
+        {
+            "id": "SKU001",
+            "name": "Bola",
+            "desc": "Bola",
+            "unit": "Bola",
+            "subunits": [],
+            "width": 1,
+            "length": 1,
+            "stackable": true,
+            "stackable": true,
+            "count": []
+        }
